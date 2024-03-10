@@ -1,16 +1,15 @@
 `timescale 1ns / 1ps
 
-module PE_ARR #(parameter input_width = 8,
-                          output_width = 20,
-                          PE_arr_size = 9)
+module PE_ARR #(parameter input_width   = 8,
+                          output_width  = 20,
+                          PE_arr_size   = 9)
+                          
                (clk, rst_n, bias_input, ofm_output, ifm_input, wgt_input);
     
-    input logic clk;
-    input logic rst_n;
-    input logic bias_input;
+    input clk, rst_n, bias_input;
     
-    input logic [input_width-1:0] ifm_input [PE_arr_size-1:0];    
-    input logic [input_width-1:0] wgt_input [PE_arr_size-1:0];
+    input signed [input_width-1:0] ifm_input [PE_arr_size-1:0];    
+    input signed [input_width-1:0] wgt_input [PE_arr_size-1:0];
     
     wire signed [output_width-1:0] product_output [PE_arr_size-1:0];
     

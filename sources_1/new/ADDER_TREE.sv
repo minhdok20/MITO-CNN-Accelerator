@@ -3,11 +3,10 @@
 module ADDER_TREE #(parameter input_width = 20,
                               output_width = 20,
                               PE_arr_size = 9)
+                              
                    (clk, rst_n, bias_input, ofm_output, product_input);
 
-    input logic clk;
-    input logic rst_n;
-    input logic bias_input;    
+    input clk, rst_n, bias_input;    
     
     input signed [input_width-1:0] product_input [PE_arr_size-1:0];
     

@@ -2,10 +2,12 @@
 
 module COLLATIONER #(parameter input_width  = 20,
                                output_width = 20)
+                               
                     (clk, rst_n, ifm_input0, ifm_input1, ifm_output);
-    input logic clk, rst_n;
-    input logic [input_width-1:0] ifm_input0;
-    input logic [input_width-1:0] ifm_input1;
+                    
+    input clk, rst_n;
+    input [input_width-1:0] ifm_input0;
+    input [input_width-1:0] ifm_input1;
     
     output reg [output_width-1:0] ifm_output;
     
@@ -16,4 +18,5 @@ module COLLATIONER #(parameter input_width  = 20,
             ifm_output <= (ifm_input0 > ifm_input1) ? ifm_input0 : ifm_input1;
         end        
     end
+    
 endmodule

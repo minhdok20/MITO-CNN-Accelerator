@@ -2,10 +2,12 @@
 
 module MAX_POOLING #(parameter input_width  = 20,
                                output_width = 20,
-                               pool_size    = 4)
+                               pool_size    = 2*2)
+                               
                     (clk, rst_n, ifm_input, ifm_output);
-    input logic clk, rst_n;
-    input logic [input_width-1:0] ifm_input [pool_size-1:0];
+                    
+    input clk, rst_n;
+    input [input_width-1:0] ifm_input [pool_size-1:0];
     
     reg [output_width-1:0] buffer [pool_size-1:0];
     
@@ -28,4 +30,5 @@ module MAX_POOLING #(parameter input_width  = 20,
             ifm_output <= buffer[pool_size-2];
         end
     end
+    
 endmodule

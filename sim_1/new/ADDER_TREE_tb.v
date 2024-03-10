@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module ADDER_TREE_tb#(parameter input_width = 16,
-                      parameter output_width = input_width + 4);
+                      parameter output_width = 20);
 
     reg clk;
     reg rst_n;

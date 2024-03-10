@@ -1,26 +1,7 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 03/02/2024 10:36:51 AM
-// Design Name: 
-// Module Name: RELU
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module RELU #(parameter data_width = 20)
+
              (clk, rst_n, input_relu, output_relu);
     
     input clk, rst_n;

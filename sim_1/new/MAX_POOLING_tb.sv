@@ -28,7 +28,7 @@ module MAX_POOLING_tb;
     
     initial begin
         rst_n = 1;
-        #10;
+        #10;        
         for (i=0; i<pool_size; i++) begin
             ifm_input[i] = $urandom_range($time*100);
         end
