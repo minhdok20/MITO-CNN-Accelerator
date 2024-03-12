@@ -1,17 +1,17 @@
 `timescale 1ns / 1ps
 
-module MAX_POOLING #(parameter input_width  = 20,
-                               output_width = 20,
+module MAX_POOLING #(parameter input_width  = 8,
+                               output_width = 8,
                                pool_size    = 2*2)
                                
                     (clk, rst_n, ifm_input, ifm_output);
                     
     input clk, rst_n;
-    input [input_width-1:0] ifm_input [pool_size-1:0];
+    input signed [input_width-1:0] ifm_input [pool_size-1:0];
     
-    reg [output_width-1:0] buffer [pool_size-1:0];
+    reg signed [output_width-1:0] buffer [pool_size-1:0];
     
-    output reg [output_width-1:0] ifm_output;
+    output reg signed [output_width-1:0] ifm_output;
     
     genvar i;
     
@@ -29,6 +29,6 @@ module MAX_POOLING #(parameter input_width  = 20,
         end else begin
             ifm_output <= buffer[pool_size-2];
         end
-    end
+    end   
     
 endmodule
