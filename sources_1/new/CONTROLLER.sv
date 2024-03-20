@@ -12,12 +12,10 @@ module CONTROLLER #(parameter CONVOLUTION   = 4'b0001,
                               
                    (clk, rst_n, ifm_read, wgt_read, bias_read);
                    
-    input clk, rst_n;
-    
+    input clk, rst_n;    
     output reg ifm_read, wgt_read, bias_read;
     
-    reg [3:0] mode;
-    
+    reg [3:0] mode;    
     reg [3:0] counter;
     
     //read data
@@ -30,59 +28,49 @@ module CONTROLLER #(parameter CONVOLUTION   = 4'b0001,
             counter <= 0;
             mode <= INIT;
         end else begin
+        
             case(mode)
+                //############################################################################################
                 CONVOLUTION:
                 if (counter < 1) begin
-                    //chu kỳ đầu, cho phép load toàn bộ ifm, wgt và bias vào PE array
+                    //chu kỳ đầu, cho phép load toàn bộ ifm, wgt và bias vào PE array để tính toán convolutional 
                     ifm_read <= 1;
                     wgt_read <= 1;
                     bias_read <= 1;
-                    //chuyển sang chu kỳ tiếp theo
+                    //chu kỳ tiếp theo
                     counter <= counter + 1;
                 end else if (counter < 9) begin
-                    //các chu kỳ sau, chỉ load wgt và bias 
+                    //các chu kỳ sau, chỉ load ifm
                     ifm_read <= 1;
                     wgt_read <= 0;
                     bias_read <= 0;
-                    //chuyển sang chu kỳ tiếp theo
+                    //chu kỳ tiếp theo
                     counter <= counter + 1;
                 end else begin
                     counter <= 0;
-                end     
+                end                     
                 
+                //############################################################################################
                 POOLING:
-                if (counter < 1) begin
-                    //chu kỳ đầu, cho phép load toàn bộ ifm, wgt và bias vào PE array
-                    ifm_read <= 1;
-                    wgt_read <= 1;
-                    bias_read <= 1;
-                    //chuyển sang chu kỳ tiếp theo
-                    counter <= counter + 1;
-                end else if (counter < 9) begin
-                    //các chu kỳ sau, chỉ load wgt và bias 
+                if (counter < 9) begin
+                    //chỉ load ifm vào FE array để tính toán max pooling
                     ifm_read <= 1;
                     wgt_read <= 0;
                     bias_read <= 0;
-                    //chuyển sang chu kỳ tiếp theo
+                    //chu kỳ tiếp theo
                     counter <= counter + 1;
                 end else begin
                     counter <= 0;
                 end  
                 
+                //############################################################################################
                 FULLY:
-                if (counter < 1) begin
-                    //chu kỳ đầu, cho phép load toàn bộ ifm, wgt và bias vào PE array
+                if (counter < 9) begin
+                    //chu kỳ đầu, load toàn bộ ifm, wgt vào PE array để tính toán fully connected 
                     ifm_read <= 1;
                     wgt_read <= 1;
-                    bias_read <= 1;
-                    //chuyển sang chu kỳ tiếp theo
-                    counter <= counter + 1;
-                end else if (counter < 9) begin
-                    //các chu kỳ sau, chỉ load wgt và bias 
-                    ifm_read <= 1;
-                    wgt_read <= 0;
                     bias_read <= 0;
-                    //chuyển sang chu kỳ tiếp theo
+                    //chu kỳ tiếp theo
                     counter <= counter + 1;
                 end else begin
                     counter <= 0;
@@ -92,21 +80,21 @@ module CONTROLLER #(parameter CONVOLUTION   = 4'b0001,
     end
     
     //calculate
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+//    always_ff @(posedge clk or negedge rst_n) begin
+//        if (!rst_n) begin
             
-        end else begin
+//        end else begin
             
-        end
-    end
+//        end
+//    end
     
     //write back  
-    always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+//    always_ff @(posedge clk or negedge rst_n) begin
+//        if (!rst_n) begin
             
-        end else begin
+//        end else begin
             
-        end
-    end
+//        end
+//    end
     
 endmodule

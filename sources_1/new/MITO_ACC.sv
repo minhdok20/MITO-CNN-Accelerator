@@ -34,12 +34,12 @@ module MITO_ACC #(parameter ifm_input_width     = 32,
     wire signed [ofm_output_width-1:0]  ofm_wire_pool_out;
     wire signed [ofm_output_width-1:0]  ofm_wire_buf;
         
-    wire [2:0] ifm_read;
+    wire [3:0] ifm_read;
     wire wgt_read;
     wire bias_read;
     wire [1:0] mode;
     
-//    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .)
+    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .wgt_read(wgt_read), .bias_read(bias_read));
     
     IFM_BUF ifm_buffer      (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .ifm_input(ifm_input), .ifm_output(ifm_wire));
     WGT_BUF wgt_buffer      (.clk(clk), .rst_n(rst_n), .wgt_read(wgt_read), .wgt_input(wgt_input), .wgt_output(wgt_wire));
