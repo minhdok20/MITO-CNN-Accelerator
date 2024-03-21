@@ -1,81 +1,49 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 02/21/2024 08:41:21 AM
-// Design Name: module Accelerator
-// Module Name: WGT_BUF
-// Project Name: CNN Accelerator
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
-
-module WGT_BUF#(parameter output_width = 8,
-                          input_width = 32)
-               (clk, rst_n, wgt_read,
-                wgt_input0, wgt_input1, wgt_input2,  
-                wgt_output0, wgt_output1, wgt_output2, 
-                wgt_output3, wgt_output4, wgt_output5, 
-                wgt_output6, wgt_output7, wgt_output8);
-    input clk;
-    input rst_n;
-    input wgt_read;
-    input signed [input_width-1:0] wgt_input0;
-    input signed [input_width-1:0] wgt_input1;
-    input signed [input_width-1:0] wgt_input2;
-    
-    output reg signed [output_width-1:0] wgt_output0;
-    output reg signed [output_width-1:0] wgt_output1;
-    output reg signed [output_width-1:0] wgt_output2;
-    output reg signed [output_width-1:0] wgt_output3;
-    output reg signed [output_width-1:0] wgt_output4;
-    output reg signed [output_width-1:0] wgt_output5;
-    output reg signed [output_width-1:0] wgt_output6;
-    output reg signed [output_width-1:0] wgt_output7;
-    output reg signed [output_width-1:0] wgt_output8;
+// **MODEL WEIGHT FEATURE MAP BUFFER **
+module WGT_BUF #(parameter          INPUT_WIDTH         = 32,
+                                    OUTPUT_WIDTH        = 8,
+                                    INPUT_WGT_REG       = 3,
+                                    PE_ARR_SIZE         = 9
+                )
+                          
+                (input                                  clk, 
+                 input                                  rst_n, 
+                 input                                  wgt_read,
+                 input signed       [INPUT_WIDTH-1:0]   wgt_input   [INPUT_WGT_REG-1:0], 
+                 output reg signed  [OUTPUT_WIDTH-1:0]  wgt_output  [PE_ARR_SIZE-1:0]
+                );
    
-    always @(posedge clk or negedge rst_n)
-        if (~rst_n) begin
-            wgt_output0 <= 0;
-            wgt_output1 <= 0;
-            wgt_output2 <= 0;
-            wgt_output3 <= 0;
-            wgt_output4 <= 0;
-            wgt_output5 <= 0;
-            wgt_output6 <= 0;
-            wgt_output7 <= 0;
-            wgt_output8 <= 0;
-        end else begin
-            if(wgt_read) begin
-                wgt_output0 <= wgt_input0[input_width-1:16];
-                wgt_output1 <= wgt_input0[15:8];
-                wgt_output2 <= wgt_input0[7:0];
-                wgt_output3 <= wgt_input1[input_width-1:16];
-                wgt_output4 <= wgt_input1[15:8];
-                wgt_output5 <= wgt_input1[7:0];
-                wgt_output6 <= wgt_input2[input_width-1:16];
-                wgt_output7 <= wgt_input2[15:8];
-                wgt_output8 <= wgt_input2[7:0];
-            end else begin
-                wgt_output0 <= wgt_output0;
-                wgt_output1 <= wgt_output1;
-                wgt_output2 <= wgt_output2;
-                wgt_output3 <= wgt_output3;
-                wgt_output4 <= wgt_output4;
-                wgt_output5 <= wgt_output5;
-                wgt_output6 <= wgt_output6;
-                wgt_output7 <= wgt_output7;
-                wgt_output8 <= wgt_output8;
+    int i;
+  
+    always_ff @(posedge clk or negedge rst_n) 
+    begin
+        if (~rst_n) 
+        begin
+            for (i = 0; i < PE_ARR_SIZE; i++) 
+            begin
+                wgt_output[i] <= 'bx;
+            end
+        end 
+        else 
+        begin
+            if(wgt_read) 
+            begin
+                for (i = 0; i < PE_ARR_SIZE/3; i++) 
+                begin
+                    wgt_output[i*3]     <= wgt_input[i][23:16];
+                    wgt_output[i*3+1]   <= wgt_input[i][15:8];
+                    wgt_output[i*3+2]   <= wgt_input[i][7:0];
+                end
+            end 
+            else 
+            begin
+                for (i = 0; i < PE_ARR_SIZE; i++) 
+                begin
+                    wgt_output[i]       <= wgt_output[i];
+                end
             end
         end
+    end
+    
 endmodule

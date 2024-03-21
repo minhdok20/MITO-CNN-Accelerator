@@ -1,25 +1,26 @@
 `timescale 1ns / 1ps
 
-module OFM_BUF#(parameter input_width = 20, 
-                          output_width = 8)
-               (clk, rst_n, ofm_input, ofm_output);
-
-    input clk;
-    input rst_n;
-    input signed [7:0] ofm_input;
+// ** MODULE OFM BUFFER **
+module OFM_BUF#(parameter   INPUT_WIDTH             = 8, 
+                            OUTPUT_WIDTH            = 8
+                )
+                          
+               (input                               clk, 
+                input                               rst_n, 
+                input       [INPUT_WIDTH-1:0]       ofm_input, 
+                output reg  [OUTPUT_WIDTH-1:0]      ofm_output
+               );
     
-    output signed [7:0] ofm_output;
-    
-    reg signed [7:0] ofm_buf;
-    
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            ofm_buf <= 0;
-        end else begin
-            ofm_buf <= ofm_input;
+    always_ff @(posedge clk or negedge rst_n) 
+    begin
+        if (!rst_n) 
+        begin
+            ofm_output <= 0;
+        end 
+        else 
+        begin
+            ofm_output <= ofm_input;
         end
     end
-    
-    assign ofm_output = ofm_buf;
 
 endmodule

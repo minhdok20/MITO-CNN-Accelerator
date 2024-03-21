@@ -1,37 +1,61 @@
 `timescale 1ns / 1ps
 
+
+// ** MODULE TESTBENCH JUST TEST MAX POOLING MODULE **
+
+// `include "MAX_POOLING.sv"
+
 module MAX_POOLING_tb;
 
-    parameter input_width  = 20,
-              output_width = 20,
-              pool_size    = 4;
-              
-    reg clk, rst_n;
-    reg [input_width-1:0] ifm_input [pool_size-1:0];
+    // Parameters
+    parameter     INPUT_WIDTH           = 20;
+    parameter     OUTPUT_WIDTH          = 20;
+    parameter     POOL_SIZE             = 2*2;
+
+    // I/O  
+    reg                                 clk;
+    reg                                 rst_n;
+    reg signed   [INPUT_WIDTH-1:0]      ifm_input       [POOL_SIZE-1:0];
+    wire signed  [OUTPUT_WIDTH-1:0]     ifm_output;
     
-    wire [output_width-1:0] ifm_output;
+    // Addition variables
+    integer                             i;
+
+    // Connection
+    MAX_POOLING #(.INPUT_WIDTH          (INPUT_WIDTH),
+                  .OUTPUT_WIDTH         (OUTPUT_WIDTH),
+                  .POOL_SIZE            (POOL_SIZE))
+              dut(.clk                  (clk),
+                  .rst_n                (rst_n),
+                  .ifm_input            (ifm_input),
+                  .ifm_output           (ifm_output)
+                 );
     
-    MAX_POOLING #(.input_width (input_width),
-             .output_width (output_width),
-             .pool_size (pool_size))
-    dut(
-        .clk (clk),
-        .rst_n (rst_n),
-        .ifm_input (ifm_input),
-        .ifm_output (ifm_output)
-    );
-    
-    initial clk = 0;
+    // Initial values
+    initial begin
+        clk = 0;
+        rst_n = 1;
+    end
     always #5 clk = ~clk;
     
-    integer i;
-    
+    // Begin test
     initial begin
-        rst_n = 1;
-        #10;
-        for (i=0; i<pool_size; i++) begin
-            ifm_input[i] = $urandom_range($time*100);
+        #10;   
+        repeat(50) begin
+            $display("TESTCASE!");     
+            for (i=0; i<POOL_SIZE; i++) begin
+                ifm_input[i] = $random;
+                $display("i = %0d: Input : %d", i, ifm_input[i]); 
+            end
+            #100 $display("Output:        %d", ifm_output);
         end
         #100 $finish;
     end
+
+    // --- Dump file ---
+    // initial 
+    // begin
+    //     $dumpfile("test.vcd");
+	//     $dumpvars(0);
+    // end
 endmodule
