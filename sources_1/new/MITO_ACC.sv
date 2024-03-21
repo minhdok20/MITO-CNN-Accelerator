@@ -16,9 +16,9 @@ module MITO_ACC #(parameter ifm_input_width     = 32,
                             FULLY               = 2'b10,
                             POOL                = 2'b11)
                             
-                 (clk, rst_n, bias_input, ofm_output, ifm_input, wgt_input);
+                 (clk, rst_n, start, bias_input, ofm_output, ifm_input, wgt_input);
 
-    input clk, rst_n;
+    input clk, rst_n, start;
     
     input signed [bias_width-1:0] bias_input;    
     input signed [ifm_input_width-1:0]  ifm_input [input_reg-1:0];    
@@ -38,8 +38,9 @@ module MITO_ACC #(parameter ifm_input_width     = 32,
     wire wgt_read;
     wire bias_read;
     wire [1:0] mode;
+    wire [1:0] layer_type;
     
-    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .wgt_read(wgt_read), .bias_read(bias_read));
+    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .start(start), .ifm_read(ifm_read), .wgt_read(wgt_read), .bias_read(bias_read), .layer_type());
     
     IFM_BUF ifm_buffer      (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .ifm_input(ifm_input), .ifm_output(ifm_wire));
     WGT_BUF wgt_buffer      (.clk(clk), .rst_n(rst_n), .wgt_read(wgt_read), .wgt_input(wgt_input), .wgt_output(wgt_wire));
