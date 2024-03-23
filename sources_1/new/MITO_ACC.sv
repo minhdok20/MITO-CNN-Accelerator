@@ -39,7 +39,7 @@ module MITO_ACC #(parameter INPUT_WIDTH         = 32,
     DEMUX_1_TO_3 demux1     (.clk(clk), .rst_n(rst_n), .sel(sel), .main_input(MITO_input), .main_output({bias_input_wire, wgt_input_wire, ifm_input_wire}))
     
 //    IFM_BUF ifm_buffer      (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .ifm_input(ifm_input), .ifm_output(ifm_wire));
-    WGT_BUF wgt_buffer      (.clk(clk), .rst_n(rst_n), .wgt_read(wgt_read), .wgt_input(wgt_input), .wgt_output(wgt_wire));
+    WGT_BUF wgt_buffer      (.clk(clk), .rst_n(rst_n), .wgt_input(wgt_input), .wgt_output(wgt_wire));
     BIAS_BUF bias_buffer    (.clk(clk), .rst_n(rst_n), .bias_read(bias_read), .bias_input(bias_input), .bias_output(bias_wire));
     
     PE_ARR pe_array         (.clk(clk), .rst_n(rst_n), .bias_input(bias_wire), .ifm_input(ifm_wire), .wgt_input(wgt_wire), .ofm_output(ofm_wire_relu_in));
