@@ -1,14 +1,13 @@
 `timescale 1ns / 1ps
 
-module MITO_ACC #(parameter ifm_input_width     = 32,
-                            wgt_input_width     = 32,
+module MITO_ACC #(parameter INPUT_WIDTH         = 32,
+                            OUTPUT_WIDTH        = 32,
                             
                             ifm_output_width    = 8,
                             wgt_output_width    = 8,
                             bias_width          = 8,
                             ofm_output_width    = 8,
                             
-                            input_reg           = 3,
                             PE_array_size       = 9,
                             pool_size           = 2*2,
                             
@@ -16,33 +15,30 @@ module MITO_ACC #(parameter ifm_input_width     = 32,
                             FULLY               = 2'b10,
                             POOL                = 2'b11)
                             
-                 (clk, rst_n, start, bias_input, ofm_output, ifm_input, wgt_input);
+                 (clk, rst_n, MITO_input, MITO_output);
 
-    input clk, rst_n, start;
+    input clk, rst_n;    
+    input signed [INPUT_WIDTH-1:0] MITO_input;
     
-    input signed [bias_width-1:0] bias_input;    
-    input signed [ifm_input_width-1:0]  ifm_input [input_reg-1:0];    
-    input signed [wgt_input_width-1:0]  wgt_input [input_reg-1:0];    
+    output reg signed [OUTPUT_WIDTH-1:0] MITO_output;
     
-    output reg signed [ofm_output_width-1:0] ofm_output;
+    wire signed [INPUT_WIDTH-1:0] ifm_input_wire;
+    wire signed [INPUT_WIDTH-1:0] wgt_input_wire;
+    wire signed [INPUT_WIDTH-1:0] bias_input_wire;
     
-    wire signed [bias_width-1:0]        bias_wire;    
-    wire signed [ifm_output_width-1:0]  ifm_wire [PE_array_size-1:0];    
-    wire signed [wgt_output_width-1:0]  wgt_wire [PE_array_size-1:0];
-    wire signed [ofm_output_width-1:0]  ofm_wire_relu_in;
-    wire signed [ofm_output_width-1:0]  ofm_wire_relu_out;      
-    wire signed [ofm_output_width-1:0]  ofm_wire_pool_out;
-    wire signed [ofm_output_width-1:0]  ofm_wire_buf;
+    
         
-    wire [3:0] ifm_read;
     wire wgt_read;
     wire bias_read;
     wire [1:0] mode;
     wire [1:0] layer_type;
+    wire [1:0] sel;
     
-    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .start(start), .ifm_read(ifm_read), .wgt_read(wgt_read), .bias_read(bias_read), .layer_type());
+//    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .start(start), .ifm_read(ifm_read), .wgt_read(wgt_read), .bias_read(bias_read), .layer_type());
     
-    IFM_BUF ifm_buffer      (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .ifm_input(ifm_input), .ifm_output(ifm_wire));
+    DEMUX_1_TO_3 demux1     (.clk(clk), .rst_n(rst_n), .sel(sel), .main_input(MITO_input), .main_output({bias_input_wire, wgt_input_wire, ifm_input_wire}))
+    
+//    IFM_BUF ifm_buffer      (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .ifm_input(ifm_input), .ifm_output(ifm_wire));
     WGT_BUF wgt_buffer      (.clk(clk), .rst_n(rst_n), .wgt_read(wgt_read), .wgt_input(wgt_input), .wgt_output(wgt_wire));
     BIAS_BUF bias_buffer    (.clk(clk), .rst_n(rst_n), .bias_read(bias_read), .bias_input(bias_input), .bias_output(bias_wire));
     
