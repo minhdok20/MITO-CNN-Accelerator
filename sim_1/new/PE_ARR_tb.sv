@@ -52,6 +52,7 @@ module PE_ARR_tb;
     task    display_and_predict();
         counter++;
         predict_output = 0;
+        
         $display("[TESTCASE: %0d] [Time: %t]", counter, $realtime);
         $display("Bias input:      %d", bias_input);
         for (int i = 0; i < PE_ARR_SIZE; i++) 
@@ -59,7 +60,9 @@ module PE_ARR_tb;
             $display("PE Block %0d: Input feature map - %d, Weight input - %d", i, ifm_input[i], wgt_input[i]);
             predict_output += ifm_input[i] * wgt_input[i]; 
         end
-        #(PREDICT_CLOCK * CLOCK_TIMER) predict_output = (flag_rst) ? 'bx : predict_output + bias_input;
+        #(PREDICT_CLOCK * CLOCK_TIMER) predict_output += bias_input;
+        if (flag_rst) 
+            predict_output = 'bx;
         $display("Result:     Expected value: %d, Actual value: %d", predict_output, ofm_output);
         if (predict_output !== ofm_output) 
         begin

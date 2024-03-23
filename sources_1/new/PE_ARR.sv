@@ -1,8 +1,5 @@
 `timescale 1ns / 1ps
 
-`include "PE.sv"
-`include "ADDER_TREE.sv"
-
 // ** MODULE PE ARRAY (2 DIMENSIONS) **
 module PE_ARR #(parameter           INPUT_IFM_WIDTH         = 8,
                                     INPUT_WGT_WIDTH         = 8,
@@ -20,7 +17,7 @@ module PE_ARR #(parameter           INPUT_IFM_WIDTH         = 8,
                );
 
     // Additional partial output of PE blocks
-    wire signed                     [PAR_WIDTH-1:0]         product_output  [PE_ARR_SIZE-1:0];
+    reg signed                     [PAR_WIDTH-1:0]         product_output  [PE_ARR_SIZE-1:0];
     
     // Connection
     genvar i;

@@ -2,8 +2,6 @@
 
 // ** MODULE MAX POOLING **
 
-`include "COLLATIONER.sv"
-
 module  MAX_POOLING    #(parameter          INPUT_WIDTH             = 8,
                                             OUTPUT_WIDTH            = 8,
                                             POOL_SIZE               = 2*2
