@@ -137,7 +137,7 @@ module IFM_BUF #(parameter INPUT_WIDTH = 32,
             end
             
             default: begin
-            
+                shift_mode = ALL;
             end
         endcase
     end
