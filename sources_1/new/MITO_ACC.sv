@@ -9,6 +9,7 @@ module MITO_ACC #(parameter INPUT_WIDTH         = 32,
                             ofm_output_width    = 8,
                             
                             PE_array_size       = 9,
+                            NUM_OF_OUTPUTS      = 9,
                             pool_size           = 2*2,
                             
                             CONVOL              = 2'b01,
@@ -22,24 +23,18 @@ module MITO_ACC #(parameter INPUT_WIDTH         = 32,
     
     output reg signed [OUTPUT_WIDTH-1:0] MITO_output;
     
-    wire signed [INPUT_WIDTH-1:0] ifm_input_wire;
-    wire signed [INPUT_WIDTH-1:0] wgt_input_wire;
-    wire signed [INPUT_WIDTH-1:0] bias_input_wire;
+    wire signed [INPUT_WIDTH-1:0] wire_out_ifm [NUM_OF_OUTPUTS-1:0];
+    wire signed [INPUT_WIDTH-1:0] wire_out_wgt [NUM_OF_OUTPUTS-1:0];
+    wire signed [INPUT_WIDTH-1:0] wire_out_bias;
     
-        
-    wire wgt_read;
-    wire bias_read;
+    wire start_signal;
+    wire ready_load;
     wire [1:0] mode;
-    wire [1:0] layer_type;
     wire [1:0] sel;
     
-//    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .start(start), .ifm_read(ifm_read), .wgt_read(wgt_read), .bias_read(bias_read), .layer_type());
+    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .start(start), .start_signal(start_signal));
     
-//    DEMUX_1_TO_3 demux1     (.clk(clk), .rst_n(rst_n), .sel(sel), .main_input(MITO_input), .main_output({bias_input_wire, wgt_input_wire, ifm_input_wire}))
-    
-    IFM_BUF ifm_buffer      (.clk(clk), .rst_n(rst_n), .ifm_read(ifm_read), .ifm_input(ifm_input), .ifm_output(ifm_wire));
-    WGT_BUF wgt_buffer      (.clk(clk), .rst_n(rst_n), .wgt_input(wgt_input), .wgt_output(wgt_wire));
-    BIAS_BUF bias_buffer    (.clk(clk), .rst_n(rst_n), .bias_read(bias_read), .bias_input(bias_input), .bias_output(bias_wire));
+    MAIN_BUF mainBuf       (.clk(clk), .rst_n(rst_n), .start_signal(start_signal), .ready_load(ready_load), .main_input(MITO_input), .main_output_ifm(wire_out_ifm), .main_output_wgt(wire_out_wgt), .main_output_bias(wire_out_bias));
     
     PE_ARR pe_array         (.clk(clk), .rst_n(rst_n), .bias_input(bias_wire), .ifm_input(ifm_wire), .wgt_input(wgt_wire), .ofm_output(ofm_wire_relu_in));
     
