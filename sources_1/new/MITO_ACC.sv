@@ -16,9 +16,9 @@ module MITO_ACC #(parameter INPUT_WIDTH         = 32,
                             FULLY               = 2'b10,
                             POOL                = 2'b11)
                             
-                 (clk, rst_n, MITO_input, MITO_output);
+                 (clk, rst_n, start, MITO_input, MITO_output);
 
-    input clk, rst_n;    
+    input clk, rst_n, start;    
     input signed [INPUT_WIDTH-1:0] MITO_input;
     
     output reg signed [OUTPUT_WIDTH-1:0] MITO_output;
@@ -29,12 +29,15 @@ module MITO_ACC #(parameter INPUT_WIDTH         = 32,
     
     wire start_signal;
     wire ready_load;
+    
     wire [1:0] mode;
     wire [1:0] sel;
     
     CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .start(start), .start_signal(start_signal));
     
     MAIN_BUF mainBuf       (.clk(clk), .rst_n(rst_n), .start_signal(start_signal), .ready_load(ready_load), .main_input(MITO_input), .main_output_ifm(wire_out_ifm), .main_output_wgt(wire_out_wgt), .main_output_bias(wire_out_bias));
+    
+    
     
     PE_ARR pe_array         (.clk(clk), .rst_n(rst_n), .bias_input(bias_wire), .ifm_input(ifm_wire), .wgt_input(wgt_wire), .ofm_output(ofm_wire_relu_in));
     
