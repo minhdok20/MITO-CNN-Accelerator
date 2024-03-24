@@ -16,13 +16,13 @@ module PE_ARR #(parameter INPUT_WIDTH = 8,
     
     output reg signed [OUTPUT_WIDTH-1:0] ofm_output;
     
-    wire ready_adder;
+    wire ready_adder;   
     
     genvar i;
     
     generate    
         for (i=0; i<PE_arr_size; i=i+1) begin
-            PE pe (.clk(clk), .rst_n(rst_n), .ready_load(read_load), .ifm_input(ifm_input[i]), .wgt_input(wgt_input[i]), .product_output(product_output[i]), .ready_adder(ready_adder));
+            PE pe (.clk(clk), .rst_n(rst_n), .ready_load(ready_load), .ifm_input(ifm_input[i]), .wgt_input(wgt_input[i]), .product_output(product_output[i]), .ready_adder(ready_adder));
         end
     endgenerate
     
