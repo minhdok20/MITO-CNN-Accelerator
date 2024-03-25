@@ -4,7 +4,7 @@ module ADDER_TREE #(parameter INPUT_WIDTH = 20,
                               OUTPUT_WIDTH = 20,
                               PE_arr_size = 9)
                               
-                   (clk, rst_n, ready_adder, bias_input, ofm_output, product_input);
+                   (clk, rst_n, ready_adder, bias_input, product_input, ofm_output, ready_activation);
 
     input clk, rst_n, ready_adder; 
     
@@ -12,12 +12,14 @@ module ADDER_TREE #(parameter INPUT_WIDTH = 20,
     input signed [INPUT_WIDTH-1:0] product_input [PE_arr_size-1:0];
     
     output reg signed [OUTPUT_WIDTH-1:0] ofm_output;
+    output reg ready_activation;
     
     reg signed [OUTPUT_WIDTH-1:0] p_sum [PE_arr_size-2:0];
         
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             ofm_output <= 0;
+            ready_activation <= 0;
         end else begin
             if (ready_adder) begin
                 p_sum[0] <= product_input[0] + product_input[1];
@@ -29,8 +31,10 @@ module ADDER_TREE #(parameter INPUT_WIDTH = 20,
                 p_sum[6] <= p_sum[2] + p_sum[3];
                 p_sum[7] <= p_sum[4] + p_sum[5];
                 ofm_output <= p_sum[6] + p_sum[7];
+                ready_activation <= 1;
             end else begin
                 ofm_output <= ofm_output;
+                ready_activation <= 0;
             end
         end      
     end

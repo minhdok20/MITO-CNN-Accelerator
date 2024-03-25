@@ -4,7 +4,7 @@ module PE_ARR #(parameter INPUT_WIDTH = 8,
                           OUTPUT_WIDTH = 20,
                           PE_arr_size = 9)
                           
-               (clk, rst_n, ready_load, ifm_input, wgt_input, bias_input, ofm_output);
+               (clk, rst_n, ready_load, ifm_input, wgt_input, bias_input, ofm_output, ready_activation);
     
     input clk, rst_n, ready_load;
         
@@ -15,6 +15,7 @@ module PE_ARR #(parameter INPUT_WIDTH = 8,
     wire signed [OUTPUT_WIDTH-1:0] product_output [PE_arr_size-1:0];
     
     output reg signed [OUTPUT_WIDTH-1:0] ofm_output;
+    output reg ready_activation;
     
     wire ready_adder;   
     
@@ -26,6 +27,6 @@ module PE_ARR #(parameter INPUT_WIDTH = 8,
         end
     endgenerate
     
-    ADDER_TREE adderTree(.clk(clk), .rst_n(rst_n), .ready_adder(ready_adder), .bias_input(bias_input), .ofm_output(ofm_output), .product_input(product_output));   
+    ADDER_TREE adderTree(.clk(clk), .rst_n(rst_n), .ready_adder(ready_adder), .bias_input(bias_input), .product_input(product_output), .ofm_output(ofm_output), .ready_activation(ready_activation));   
     
 endmodule
