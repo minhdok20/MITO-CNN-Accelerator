@@ -1,101 +1,72 @@
 `timescale 1ns / 1ps
 
-// ** MODULE CONTROLLER **
-module  CONTROLLER #(parameter          CONVOLUTION   = 2'b01,
-                                        POOLING       = 2'b10,
-                                        FULLY         = 2'b11,
-                                        NONE          = 2'b00,
-                              
-                                        READ          = 4'b0100,
-                                        COMP          = 4'b0101,
-                                        WRITE         = 4'b0110,
-                              
-                                        INIT          = 4'b0111,
-                                        SUSPEND       = 4'b1000,
-                                        FINISH        = 4'b1001
-                    )             
-                    (input              clk, 
-                     input              rst_n, 
-                     input              start, 
-                     input              ofm_valid, 
-                     output reg [1:0]   layer_type
-                    );
+// *******************************************************************************************
+// ** MODULE CONTROLLER CNN LAYERS **
+module CONTROLLER 
+    // --- Parameters ---
+  #(parameter                               INSTRUCTION_WIDTH               = 32
+   )  
+    // --- I/O ---
+   (input logic                             clk,                               
+    input logic                             rst_n,                     
+    input logic     [INSTRUCTION_WIDTH-1:0] instruction_signal,               
+    input logic                             ready_write_from_act,     
+    input logic                             ready_write_from_pooling,            
+    output logic                            layer_signal,
+    output logic                            fully_convol_signal,                          
+    output logic                            pooling_signal,                          
+    output logic                            write_signal                 
+   );   
 
-    reg     [1:0]   layer_type_temp; 
-    
-    // Layer state machine for MITO
-    always_ff @(posedge clk or negedge rst_n) 
+    bit                                     ready_to_read_instruction       = 1;
+    // -- Main functional ---
+    always @(posedge clk or negedge rst_n) 
     begin
         if (!rst_n) 
-        begin  
-            layer_type <= NONE;
+        begin
+            layer_signal <= FULLY_CONVOL;
+            fully_convol_signal <= 1;
+            pooling_signal <= 0;
+            write_signal <= 0;
+            ready_to_read_instruction <= 1;
         end 
         else 
         begin
-            layer_type <= layer_type_temp;
+            if (ready_to_read_instruction) 
+            begin
+                if (instruction_signal == 32'hFFFFFFFF) 
+                begin
+                    layer_signal <= POOLING; 
+                    fully_convol_signal <= 0;
+                    pooling_signal <= 1;                
+                end 
+                else
+                begin
+                    layer_signal <= FULLY_CONVOL;
+                    fully_convol_signal <= 1;
+                    pooling_signal <= 0;
+                end
+            end
+            else 
+            begin
+                layer_signal <= layer_signal;
+                fully_convol_signal <= fully_convol_signal;
+                pooling_signal <= pooling_signal;                    
+            end
+            ready_to_read_instruction <= write_signal;
         end
     end
-    
-    always_comb begin
-        layer_type_temp = NONE;
-        case(layer_type)
-            CONVOLUTION: 
-            begin
-                if(ofm_valid == 1 && start ) 
-                begin
-                    layer_type_temp = POOLING;
-                end 
-                else 
-                begin
-                    layer_type_temp = CONVOLUTION;
-                end
-            end
-             
-            POOLING: 
-            begin
-                if (ofm_valid == 1) 
-                begin
-                    layer_type_temp = FULLY;
-                end 
-                else 
-                begin
-                    layer_type_temp = POOLING;
-                end
-            end
-             
-            FULLY: 
-            begin
-                if (ofm_valid == 1) 
-                begin
-                    layer_type_temp = NONE;
-                end 
-                else 
-                begin
-                    layer_type_temp = FULLY;
-                end
-            end
-             
-             
-            NONE: 
-            begin
-                if (start == 1) 
-                begin
-                    layer_type_temp = CONVOLUTION;
-                end 
-                else 
-                begin
-                    layer_type_temp = NONE;
-                end
-            end
-             
-            default: 
-            begin
-                layer_type_temp = NONE;
-            end
-             
-        endcase
+      
+    always @(ready_write_from_act or ready_write_from_pooling) 
+    begin
+        if (ready_write_from_act || ready_write_from_pooling) 
+        begin
+            write_signal = 1;
+        end 
+        else 
+        begin
+            write_signal = 0;
+        end
     end
-    
-    
-    
 endmodule
+// *******************************************************************************************
