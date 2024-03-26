@@ -9,9 +9,9 @@ module MAIN_BUF #(parameter INPUT_WIDTH = 32,
                             WGT = 2'b10,
                             BIAS = 2'b11)
 
-                 (clk, rst_n, start_signal, ready_load, main_input, main_output_ifm, main_output_wgt, main_output_bias);
+                 (clk, rst_n, fully_convol_signal, ready_load, main_input, main_output_ifm, main_output_wgt, main_output_bias);
 
-    input clk, rst_n, start_signal;
+    input clk, rst_n, fully_convol_signal;
     input signed [INPUT_WIDTH-1:0] main_input;
     
     output reg ready_load;
@@ -41,15 +41,20 @@ module MAIN_BUF #(parameter INPUT_WIDTH = 32,
     wire valid_read_bias;
     
     always_comb begin
-        if (counter >= 0 && counter <= 2) begin
-            sel = IFM;
-            ready_load = 0;            
-        end else if (counter >= 3 && counter <= 5) begin
-            sel = WGT;
-            ready_load = 0;
-        end else if (counter == 6) begin
-            sel = BIAS;
-            ready_load = 1;
+        if (fully_convol_signal) begin
+            if (counter >= 0 && counter <= 2) begin
+                sel = IFM;
+                ready_load = 0;            
+            end else if (counter >= 3 && counter <= 5) begin
+                sel = WGT;
+                ready_load = 0;
+            end else if (counter == 6) begin
+                sel = BIAS;
+                ready_load = 1;
+            end else begin
+                sel = 0;
+                ready_load = 0;
+            end
         end else begin
             sel = 0;
             ready_load = 0;
@@ -60,7 +65,7 @@ module MAIN_BUF #(parameter INPUT_WIDTH = 32,
     assign valid_read_wgt = (sel == WGT) ? 1 : 0;
     assign valid_read_bias = (sel == BIAS) ? 1 : 0;
             
-    DEMUX_1_TO_3 demux1 (.clk(clk), .rst_n(rst_n), .sel(sel), .demux_input(ifm_input), .demux_output_ifm(wire_ifm), .demux_output_wgt(wire_wgt), .demux_output_bias(wire_bias));
+    DEMUX_1_TO_3 demux1 (.sel(sel), .demux_input(ifm_input), .demux_output_ifm(wire_ifm), .demux_output_wgt(wire_wgt), .demux_output_bias(wire_bias));
 
     IFM_BUF ifmBuf (.clk(clk), .rst_n(rst_n), .valid_read(valid_read_ifm), .ifm_input(wire_ifm), .ifm_output(main_output_ifm));
     WGT_BUF wgtBuf (.clk(clk), .rst_n(rst_n), .valid_read(valid_read_wgt), .wgt_input(wire_wgt), .wgt_output(main_output_wgt));

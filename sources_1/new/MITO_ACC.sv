@@ -27,9 +27,13 @@ module MITO_ACC #(parameter INPUT_WIDTH         = 32,
     output reg signed [OUTPUT_WIDTH-1:0] MITO_output;
     output reg ready_finish;
     
-    wire signed [INPUT_WIDTH-1:0] wire_in_main_buf;
-    wire [INPUT_WIDTH-1:0] wire_in_max_pooling;
+    wire fully_convol_signal;
+    wire pooling_signal;
     
+    wire [INPUT_WIDTH-1:0] wire_in_max_pooling;
+    wire [DATA_WIDTH-1:0] wire_out_max_pooling;
+    
+    wire signed [INPUT_WIDTH-1:0] wire_in_main_buf;    
     wire signed [DATA_WIDTH-1:0] wire_out_ifm [NUM_OF_OUTPUTS-1:0];
     wire signed [DATA_WIDTH-1:0] wire_out_wgt [NUM_OF_OUTPUTS-1:0];
     wire signed [DATA_WIDTH-1:0] wire_out_bias;
@@ -37,29 +41,33 @@ module MITO_ACC #(parameter INPUT_WIDTH         = 32,
     wire signed [INPUT_WIDTH-1:0] wire_in_activation;
     wire [DATA_WIDTH-1:0] wire_out_activation;
     
-    wire layer_signal;
+    wire [DATA_WIDTH-1:0] wire_in_ofm;
+    
+    wire layer_signal;    
     
     wire ready_load;
     wire ready_activation;
-    wire ready_write;
+    wire ready_write_from_activation;
+    wire ready_write_from_pooling;
+    wire write_signal;
     
     wire [1:0] mode;
     wire [1:0] sel;
     
-    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .instruction_signal(instruction_signal), .layer_signal(layer_signal));
+    CONTROLLER controller   (.clk(clk), .rst_n(rst_n), .instruction_signal(instruction_signal), .layer_signal(layer_signal), .fully_convol_signal(fully_convol_signal), .pooling_signal(pooling_signal), .write_signal(write_signal));
     
-    DEMUX_1_TO_2 demuxLayer (.clk(clk), .rst_n(rst_n), .demux_input(MITO_input), .demux_output_main_buf(wire_in_main_buf), .demux_output_max_pooling(wire_in_max_pooling));
+    DEMUX_1_TO_2 demuxLayer (.sel(layer_signal), .demux_input(MITO_input), .demux_output_main_buf(wire_in_main_buf), .demux_output_max_pooling(wire_in_max_pooling));
     
-    MAIN_BUF mainBuf        (.clk(clk), .rst_n(rst_n), .start_signal(start_signal), .ready_load(ready_load), .main_input(wire_in_main_buf), .main_output_ifm(wire_out_ifm), .main_output_wgt(wire_out_wgt), .main_output_bias(wire_out_bias));
+    MAIN_BUF mainBuf        (.clk(clk), .rst_n(rst_n), .fully_convol_signal(fully_convol_signal), .ready_load(ready_load), .main_input(wire_in_main_buf), .main_output_ifm(wire_out_ifm), .main_output_wgt(wire_out_wgt), .main_output_bias(wire_out_bias));
 
     PE_ARR peArray          (.clk(clk), .rst_n(rst_n), .ready_load(ready_load), .ifm_input(wire_out_ifm), .wgt_input(wire_out_wgt), .bias_input(wire_out_bias), .ofm_output(wire_in_activation), .ready_activation(ready_activation));
     
-    ACTIVATION activation   (.clk(clk), .rst_n(rst_n), .ready_activation(ready_activation), .ofm_input(wire_in_activation), .ofm_output(wire_out_activation), .ready_write(ready_write));
+    ACTIVATION activation   (.clk(clk), .rst_n(rst_n), .ready_activation(ready_activation), .ofm_input(wire_in_activation), .ofm_output(wire_out_activation), .ready_write(ready_write_from_activation));
     
-//    MAX_POOLING maxPooling  (.clk(clk), .rst_n(rst_n), .ifm_input(ifm_wire[pool_size-1:0]), .ifm_output(ofm_wire_pool_out));
+    MAX_POOLING maxPooling  (.clk(clk), .rst_n(rst_n), .pooling_signal(pooling_signal), .ifm_input(wire_in_max_pooling), .ifm_output(wire_out_max_pooling), .ready_write(ready_write_from_pooling));
     
-       
+    MUX_2_TO_1 muxLayer     (.sel(layer_signal), .mux_input_activation(wire_out_activation), .mux_input_pooling(wire_out_max_pooling), .mux_output(wire_in_ofm));
     
-    OFM_BUF ofmBuf          (.clk(clk), .rst_n(rst_n), .ready_write(ready_write), .ofm_input(ofm_wire_buf), .ofm_output(ofm_output), .ready_finish(ready_finish));
+    OFM_BUF ofmBuf          (.clk(clk), .rst_n(rst_n), .ready_write(write_signal), .ofm_input(wire_in_ofm), .ofm_output(MITO_output), .ready_finish(ready_finish));
     
 endmodule

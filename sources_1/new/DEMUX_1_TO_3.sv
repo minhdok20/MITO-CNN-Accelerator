@@ -7,9 +7,8 @@ module DEMUX_1_TO_3 #(parameter INPUT_WIDTH   = 32,
                                 WGT           = 2'b10,
                                 BIAS          = 2'b11)
     
-                     (clk, rst_n, sel, demux_input, demux_output_ifm, demux_output_wgt, demux_output_bias);
-                     
-    input clk, rst_n;
+                     (sel, demux_input, demux_output_ifm, demux_output_wgt, demux_output_bias);
+
     input [1:0] sel;
     input [INPUT_WIDTH-1:0] demux_input;
     
